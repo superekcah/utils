@@ -10,6 +10,7 @@ all_chains = {}
 top_chains = {}
 tables = {}
 
+
 class Chain(object):
     def __init__(self, name, table, policy, packet, byte):
         self.name = name
@@ -23,7 +24,8 @@ class Chain(object):
         return "%s(%s)" % (self.__class__, self.name)
 
     def __str__(self):
-        return "%s %s [%d:%d]" % (self.name, self.policy, self.packet, self.byte)
+        return ("%s %s [%d:%d]"
+                % (self.name, self.policy, self.packet, self.byte))
 
     def add_rule(self, cond, target, pkt, byte):
         self.rules.append((cond, target, pkt, byte))
@@ -31,11 +33,13 @@ class Chain(object):
     def pretty_print(self, indent=''):
         for cond, target, pkt, byte in self.rules:
             if isinstance(target, Chain):
-                print(indent + "-A %s %s -j %s\t[%d:%d]" 
-                        % (self.name, cond, target.name, pkt, byte))
+                print(indent + "-A %s %s -j %s\t[%d:%d]"
+                      % (self.name, cond, target.name, pkt, byte))
                 target.pretty_print(indent + '  ')
             else:
-                print(indent + "-A %s %s -j %s\t[%d:%d]" % (self.name, cond, target, pkt, byte))
+                print(indent + "-A %s %s -j %s\t[%d:%d]"
+                      % (self.name, cond, target, pkt, byte))
+
 
 def parse_line(line):
     if not line:
@@ -54,12 +58,13 @@ def parse_line(line):
         chain = parts[0]
         policy = parts[1]
         counts = parts[2][1:-1].split(':')
-        chain_obj = Chain(**{'name':chain, 'policy':policy, 'table':cur_table,
-                'packet':counts[0], 'byte':counts[1]})
+        chain_obj = Chain(**{'name': chain, 'policy': policy,
+                          'table': cur_table,
+                          'packet': counts[0], 'byte': counts[1]})
         key = cur_table + ":" + chain
         all_chains[key] = chain_obj
         top_chains[key] = chain_obj
-        
+
     elif c == '[':
         # rules
         parts = line.split()
@@ -74,14 +79,17 @@ def parse_line(line):
         cond = remain_parts[0].strip()
         target = remain_parts[1].strip()
 
-        if target.split()[0] in ['SNAT', 'DNAT', 'ACCEPT', 'DROP', 
-                'MASQUERADE', 'CHECKSUM', 'QUEUE', 'MARK', 'RETURN']:
+        if target.split()[0] in ['SNAT', 'DNAT', 'ACCEPT', 'DROP',
+                                 'MASQUERADE', 'CHECKSUM', 'QUEUE',
+                                 'MARK', 'RETURN', 'REJECT', 'LOG']:
             chain.add_rule(cond, target, int(counts[0]), int(counts[1]))
         else:
             key = cur_table + ":" + target.split()[0]
-            chain.add_rule(cond, all_chains[key], int(counts[0]), int(counts[1]))
+            chain.add_rule(cond, all_chains[key],
+                           int(counts[0]), int(counts[1]))
             if key in top_chains:
                 del top_chains[key]
+
 
 def group_results():
     for key in top_chains:
@@ -98,8 +106,8 @@ if __name__ == '__main__':
             for line in f.readlines():
                 parse_line(line)
     else:
-        popen = subprocess.Popen("sudo iptables-save -c", 
-                    shell=True, stdout=subprocess.PIPE)
+        popen = subprocess.Popen("sudo iptables-save -c",
+                                 shell=True, stdout=subprocess.PIPE)
         content = popen.stdout.readlines()
         for line in content:
             parse_line(line)
