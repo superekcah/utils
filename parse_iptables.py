@@ -81,7 +81,8 @@ def parse_line(line):
 
         if target.split()[0] in ['SNAT', 'DNAT', 'ACCEPT', 'DROP',
                                  'MASQUERADE', 'CHECKSUM', 'QUEUE',
-                                 'MARK', 'RETURN', 'REJECT', 'LOG']:
+                                 'MARK', 'RETURN', 'REJECT', 'LOG',
+                                 'REDIRECT']:
             chain.add_rule(cond, target, int(counts[0]), int(counts[1]))
         else:
             key = cur_table + ":" + target.split()[0]
