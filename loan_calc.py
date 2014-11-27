@@ -11,7 +11,8 @@ BASE_INTEREST_RATES = [
     (datetime(2011, 4, 6), 6.80),
     (datetime(2011, 7, 7), 7.05),
     (datetime(2012, 6, 8), 6.80),
-    (datetime(2012, 7, 6), 6.55)
+    (datetime(2012, 7, 6), 6.55),
+    (datetime(2014, 11, 22), 6.15)
 ]
 
 
@@ -83,7 +84,7 @@ def calc_payment_list(start_year, start_meonth, total_months, total_amount,
 
 
 def main():
-    calc_payment_list(2010, 2, 360, 1390000, 60)
+    calc_payment_list(2010, 2, 360, 1390000, 70)
 
 
 if __name__ == '__main__':
