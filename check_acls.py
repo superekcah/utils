@@ -95,17 +95,8 @@ def check_tenant_acls(tenant_id):
     acls = neutron.list_accesslists(**search_opts).get('accesslists')
     if not acls:
         return
-    acl_dict = {}
-    for acl in acls:
-        subnet_id = acl['source_subnet_id']
-        if subnet_id in acl_dict:
-            acl_dict[subnet_id].add(acl['destination'])
-        else:
-            acl_dict[subnet_id] = set([acl['destination']])
-    cidrs = [acl['destination'] for acl in acls]
-    for subnet_id, cidrs in acl_dict.items():
-        print("subnet %s" % subnet_id)
-        check_cidrs(cidrs)
+    cidrs = set([acl['destination'] for acl in acls])
+    check_cidrs(cidrs)
 
 
 def check_tenants(list_file):
